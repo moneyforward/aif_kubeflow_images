@@ -9,6 +9,27 @@ ARG TARGETARCH
 
 USER root
 
+# New lines for sudo, installing docker, and makefile
+# https://stackoverflow.com/questions/25845538/how-to-use-sudo-inside-a-docker-container
+RUN apt-get update && apt-get install -y build-essential
+
+# Add Docker's official GPG key:
+RUN apt-get install -y ca-certificates curl
+RUN install -m 0755 -d /etc/apt/keyrings
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+RUN chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+RUN echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+   tee /etc/apt/sources.list.d/docker.list > /dev/null
+RUN apt-get update
+RUN apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+unzip awscliv2.zip && \
+ ./aws/install && rm -r ./aws/ && rm awscliv2.zip
 # args - software versions
 ARG CODESERVER_PYTHON_VERSION=2023.18.0
 ARG MINIFORGE_VERSION=23.3.1-1
@@ -64,4 +85,6 @@ USER root
 RUN mkdir -p /tmp_home \
  && cp -r ${HOME} /tmp_home \
  && chown -R ${NB_USER}:users /tmp_home
-USER $NB_UID
+
+#USER $NB_UID
+

@@ -33,3 +33,17 @@ ARCH ?= linux/amd64
 
 # include build targets from common
 include ../common.mk
+
+
+IMAGE_NAME=andagi_sagemaker
+ecr_url_prod="093411005699.dkr.ecr.ap-northeast-1.amazonaws.com"
+repo_name=kubeflownotebookswg/codeserver-python
+image_tag=v4.21.1v5
+
+# END EDITS
+image_url_prod="${ecr_url_prod}/${repo_name}:${image_tag}"
+
+push:
+	aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin ${ecr_url_prod}
+	docker push ${image_url_prod}
+
